@@ -1,14 +1,17 @@
 package com.example.freecodecampstreak.ui.widget
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import com.example.freecodecampstreak.R
 import com.example.freecodecampstreak.repository.FreeCodeCampRepository
 import kotlinx.coroutines.*
+import androidx.core.net.toUri
 
 /**
  * Implementation of App Widget functionality.
@@ -17,9 +20,7 @@ import kotlinx.coroutines.*
 class FreeCodeCampStreakWidget : AppWidgetProvider() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onUpdate(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
+        context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
@@ -39,14 +40,21 @@ class FreeCodeCampStreakWidget : AppWidgetProvider() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun updateAppWidget(
-    context: Context,
-    appWidgetManager: AppWidgetManager,
-    appWidgetId: Int
+    context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int
 ) {
     val userName = loadTitlePref(context, appWidgetId)
     val views = RemoteViews(context.packageName, R.layout.free_code_camp_streak_widget)
     CoroutineScope(Dispatchers.IO).launch {
         val repo = FreeCodeCampRepository()
+
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = "https://www.freecodecamp.org/learn".toUri()
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        views.setOnClickPendingIntent(R.id.appwidget_text, pendingIntent)
+
         val status = repo.getChallengeStatus(userName)
 
         views.setTextViewText(R.id.appwidget_text, status)
