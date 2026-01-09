@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.widget.ImageView
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import com.example.freecodecampstreak.R
@@ -53,11 +54,30 @@ internal fun updateAppWidget(
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        views.setOnClickPendingIntent(R.id.appwidget_text, pendingIntent)
+        views.setOnClickPendingIntent(R.id.appwidget_root, pendingIntent)
 
-        val status = repo.getChallengeStatus(userName)
+        val streakData = repo.getStreakData(userName)
 
-        views.setTextViewText(R.id.appwidget_text, status)
+        views.setTextViewText(R.id.text_status_message, streakData.status)
+        views.setTextViewText(R.id.text_streaks_count, "${streakData.count} days")
+
+        val dayViewIds = listOf(
+            R.id.day1,
+            R.id.day2,
+            R.id.day3,
+            R.id.day4,
+            R.id.day5,
+            R.id.day6,
+            R.id.day7
+        )
+        streakData.last7Days.forEachIndexed { index, dayStatus ->
+            val drawable = if (dayStatus.haveDone)
+                R.drawable.shape_dot_filled
+            else
+                R.drawable.shape_dot_outline
+
+            views.setImageViewResource(dayViewIds[index], drawable)
+        }
 
         withContext(Dispatchers.Main) {
             appWidgetManager.updateAppWidget(appWidgetId, views)

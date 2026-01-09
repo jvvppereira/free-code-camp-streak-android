@@ -3,7 +3,9 @@ package com.example.freecodecampstreak.repository
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.freecodecampstreak.model.Challenge
+import com.example.freecodecampstreak.model.DayStatus
 import com.example.freecodecampstreak.model.Root
+import com.example.freecodecampstreak.model.StreakData
 import com.example.freecodecampstreak.model.User
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
@@ -19,15 +21,19 @@ class FreeCodeCampRepository {
     private val gson = Gson()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getChallengeStatus(userName: String): String {
+    fun getStreakData(userName: String): StreakData {
         val user = getUserData(userName)
         val challenges = user.completedChallenges
-        val streakChallenges = getStreakChallenges(challenges)
-//        val streakLastWeek = getLastWeekStatus(challenges)
-        val countStreak = streakChallenges.count()
 
-        return if (wasTodayExerciseDone(streakChallenges)) "$countStreak STREAK DAYS"
-        else "PENDING $countStreak"
+        val streakCount = getStreakChallenges(challenges).count()
+        val last7Days = getLastWeekStatus(challenges)
+        val statusMsg = if (last7Days.last().haveDone) "Well done! Keep learning" else "Daily task pending!"
+
+        return StreakData(
+            count = streakCount,
+            last7Days,
+            status = statusMsg
+        )
     }
 
     private fun getUserData(userName: String): User {
@@ -78,34 +84,37 @@ class FreeCodeCampRepository {
                 }
             }
         }
+
+        if (streak.size == 1) {
+            val uniqueDate = Instant.ofEpochMilli(streak.first().completedDate)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+            val today = LocalDate.now()
+            val yesterday = today.minusDays(1)
+            if (uniqueDate != today && uniqueDate != yesterday) {
+                streak.removeFirst()
+            }
+        }
+
         return streak.reversed()
     }
 
-    private fun wasTodayExerciseDone(streakChallenges: List<Challenge>): Boolean {
-        val today = LocalDate.now()
-        val latestChallenge = streakChallenges.last()
-        val latestDate =
-            Instant.ofEpochMilli(latestChallenge.completedDate).atZone(ZoneId.systemDefault())
-                .toLocalDate()
-        return latestDate == today
-    }
-
-    private fun getLastWeekStatus(challenges: List<Challenge>): Map<String, Boolean> {
+    private fun getLastWeekStatus(challenges: List<Challenge>): List<DayStatus> {
         val today = LocalDate.now()
         val zoneId = ZoneId.systemDefault()
 
         val last7Days = (6 downTo 0).map { today.minusDays(it.toLong()) }
 
-        val map = last7Days.associate { date ->
+        val dayStatusList: List<DayStatus> = last7Days.map { date ->
             val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-            val hasChallenge = challenges.any { challenge ->
+            val haveDone = challenges.any { challenge ->
                 val challengeDate =
                     Instant.ofEpochMilli(challenge.completedDate).atZone(zoneId).toLocalDate()
                 challengeDate.isEqual(date)
             }
-            dayOfWeek to hasChallenge
+            DayStatus(dayOfWeek, haveDone)
         }
 
-        return map
+        return dayStatusList
     }
 }
