@@ -34,11 +34,19 @@ A simple Android home screen widget for tracking your daily coding streak at [fr
 - [x] **Enhance UI to show last 7 days/week summary**  
   Display a simple history of your recent daily activity, such as a 7-day streak chart or list.
 
+- [x] **Widget click opens freecodecamp.org/learn**
+  Add a deep link so that tapping the widget opens the freeCodeCamp "Learn" page in the browser.
+
 - [ ] **General UI/UX improvements**  
   Make the widget more visually appealing and accessible, improve color scheme, animations, etc.
 
-- [x] **Widget click opens freecodecamp.org/learn**
-  Add a deep link so that tapping the widget opens the freeCodeCamp "Learn" page in the browser.
+- [ ] **Set a refresh time as 2 hours**
+
+- [ ] **Make app main screen as settings screen**
+
+- [ ] **Add more UI configurations as Samsung Clock app**
+
+- [ ] **Create NodeJS API service as an option from provide processed data**
 
 ## How it looks like
 
