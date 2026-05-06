@@ -48,6 +48,8 @@ A simple Android home screen widget for tracking your daily coding streak at [fr
 
 - [ ] **Create NodeJS API service as an option from provide processed data**
 
+- [ ] **Add a notification if it`s noon and there is no activity in the current day**
+
 ## How it looks like
 
 Following here are some examples about how it looks:
