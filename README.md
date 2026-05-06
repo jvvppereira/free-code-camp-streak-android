@@ -28,15 +28,6 @@ A simple Android home screen widget for tracking your daily coding streak at [fr
 - [ ] **Add unit tests**  
   Increase test coverage, especially for API parsing and streak calculations.
 
-- [x] **Improve UI to display total streaks**  
-  Clearly show the total number of consecutive days of coding (current streak) when the daily exercise is completed.
-
-- [x] **Enhance UI to show last 7 days/week summary**  
-  Display a simple history of your recent daily activity, such as a 7-day streak chart or list.
-
-- [x] **Widget click opens freecodecamp.org/learn**
-  Add a deep link so that tapping the widget opens the freeCodeCamp "Learn" page in the browser.
-
 - [ ] **General UI/UX improvements**  
   Make the widget more visually appealing and accessible, improve color scheme, animations, etc.
 
