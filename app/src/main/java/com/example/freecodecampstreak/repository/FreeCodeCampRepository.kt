@@ -1,5 +1,7 @@
 package com.example.freecodecampstreak.repository
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.freecodecampstreak.model.Challenge
@@ -10,6 +12,7 @@ import com.example.freecodecampstreak.model.User
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.InputStream
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -19,6 +22,8 @@ import java.util.Locale
 class FreeCodeCampRepository {
     private val client = OkHttpClient()
     private val gson = Gson()
+
+    private val baseUrl = "https://free-code-camp-streak-nodejs.vercel.app"
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getStreakData(userName: String): StreakData {
@@ -34,6 +39,38 @@ class FreeCodeCampRepository {
             last7Days,
             status = statusMsg
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getStreakSvg(userName: String): Bitmap? {
+        val request = Request.Builder()
+            .url("$baseUrl/streak?username=$userName")
+            .build()
+
+        return try {
+            val response = client.newCall(request).execute()
+            response.body?.byteStream()?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun isTodayActivityDone(userName: String): Boolean {
+        val request = Request.Builder()
+            .url("$baseUrl/activity/today?username=$userName")
+            .build()
+
+        return try {
+            val response = client.newCall(request).execute()
+            val json = response.body?.string() ?: return false
+            val result = gson.fromJson(json, TodayActivityResponse::class.java)
+            result.done
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun getUserData(userName: String): User {
@@ -117,4 +154,8 @@ class FreeCodeCampRepository {
 
         return dayStatusList
     }
+
+    private data class TodayActivityResponse(
+        val done: Boolean
+    )
 }

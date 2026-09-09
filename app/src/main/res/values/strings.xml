@@ -6,4 +6,5 @@
     <string name="app_widget_description">This is an app widget description</string>
     <string name="streak_count">Streaks count</string>
     <string name="dialog_pending">Status message</string>
+    <string name="widget_streak_chart_description">FreeCodeCamp streak chart showing last 7 days</string>
 </resources>
